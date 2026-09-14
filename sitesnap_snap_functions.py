@@ -232,7 +232,7 @@ async def launch_web_unlocker(
     WEB_UNLOCKER_USER = os.environ['WEB_UNLOCKER_USER']
     WEB_UNLOCKER_PASS = os.environ['WEB_UNLOCKER_PASS']
     WEB_UNLOCKER_HOST = os.environ['WEB_UNLOCKER_HOST']
-    WEB_UNLOCKER_PORT = 33335
+    WEB_UNLOCKER_PORT = 44445
     
     if not WEB_UNLOCKER_USER or not WEB_UNLOCKER_PASS:
         raise RuntimeError(
@@ -260,6 +260,7 @@ async def launch_web_unlocker(
                 ua = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/109.0"
                 pw_browser = await pw.firefox.launch(
                     headless=headless,
+                    proxy=proxy,
                     firefox_user_prefs={
                         # Disable WebRTC local IP leaking (equivalent to the WebRtcHideLocalIpsWithMdns flags)
                         "media.peerconnection.ice.default_address_only": True,

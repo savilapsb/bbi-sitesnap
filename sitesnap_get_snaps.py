@@ -27,6 +27,7 @@ if __name__ == "__main__":
     # Locate main BBI path
     ###########################################################################################
     user_path = pathlib.Path.home()
+    TEST_OUTPUT_ROOT = pathlib.Path(r"C:\sitesnap-test")
     psb_sp_name = "PSB"
     
     # OLD SharePoint paths
@@ -67,18 +68,18 @@ if __name__ == "__main__":
     n_snaps: int = 10
     max_height: int = 30_000  # max height of screenshots, in pixels
     trouble_list: dict = {
-        "Hoka": None,          ### NEEDS MANUAL SNAPS ###
-        "Adidas": None,        ### NEEDS MANUAL SNAPS ###  (was 3, now BrightData not working)
-        "Crocs": None,         ### NEEDS MANUAL SNAPS ###
-        "New Balance": None,   ### NEEDS MANUAL SNAPS ###  (was 3, now BrightData not working)
-        "Vans": None,          ### NEEDS MANUAL SNAPS ###  (was 3, now BrightData not working)
-        "Volvo": 2,
-        "Sephora": None,       ### NEEDS MANUAL SNAPS ###
-        "Huda Beauty": None,   ### NEEDS MANUAL SNAPS ###  (was 3, now BrightData not working)
-        "Estee Lauder": None,  ### NEEDS MANUAL SNAPS ###  (was 3, now BrightData not working)
-        "Lululemon": None,     ### NEEDS MANUAL SNAPS ###
-        "MyFitnessPal": 2,
-        "New York Life Insurance": 2,
+        #"Hoka": None,          ### NEEDS MANUAL SNAPS ###
+        "Adidas": 3,        ### NEEDS MANUAL SNAPS ###  (was 3, now BrightData not working)
+        #"Crocs": None,         ### NEEDS MANUAL SNAPS ###
+        #"New Balance": None,   ### NEEDS MANUAL SNAPS ###  (was 3, now BrightData not working)
+        #"Vans": None,          ### NEEDS MANUAL SNAPS ###  (was 3, now BrightData not working)
+        #"Volvo": 2,
+        #"Sephora": None,       ### NEEDS MANUAL SNAPS ###
+        #"Huda Beauty": None,   ### NEEDS MANUAL SNAPS ###  (was 3, now BrightData not working)
+        #"Estee Lauder": None,  ### NEEDS MANUAL SNAPS ###  (was 3, now BrightData not working)
+        #"Lululemon": None,     ### NEEDS MANUAL SNAPS ###
+        #"MyFitnessPal": 2,
+        #"New York Life Insurance": 2,
     }
     
     ###########################################################################################
@@ -95,64 +96,64 @@ if __name__ == "__main__":
         # "Nike",
         # "Hoka",
         # "Gymshark",
-        # "Adidas",
+        "Adidas",
         # "Crocs",
         # "Lululemon",
         # "New Balance",
         # "Under Armour",
         # "Vans",
-        "On Running",
+        # "On Running",
         
-        "Toyota",
-        "Kia",
-        "Rivian",
-        "Jeep",
-        "Volvo",
-        "Volkswagen",
-        "Ford",
-        "Mercedes",
-        "Mazda",
-        "BMW",
+        # "Toyota",
+        # "Kia",
+        # "Rivian",
+        # "Jeep",
+        # "Volvo",
+        # "Volkswagen",
+        # "Ford",
+        # "Mercedes",
+        # "Mazda",
+        # "BMW",
         
-        "Sephora",
-        "Huda Beauty",
-        "Glossier",
-        "Estee Lauder",
-        "MAC",
-        "elf",
-        "L'Oreal",
-        "Garnier",
-        "Neutrogena",
-        "Laneige",
+        # "Sephora",
+        # "Huda Beauty",
+        # "Glossier",
+        # "Estee Lauder",
+        # "MAC",
+        # "elf",
+        # "L'Oreal",
+        # "Garnier",
+        # "Neutrogena",
+        # "Laneige",
         
-        "Apple Watch",
-        "MyFitnessPal",
-        "Oura",
-        "Garmin",
-        "Strava",
-        "Peloton",
-        "Whoop",
-        "Calm",
-        "Amazfit",
-        "Samsung Health",
+        # "Apple Watch",
+        # "MyFitnessPal",
+        # "Oura",
+        # "Garmin",
+        # "Strava",
+        # "Peloton",
+        # "Whoop",
+        # "Calm",
+        # "Amazfit",
+        # "Samsung Health",
         
-        "Chase",
-        "Venmo",
-        "Chime",
-        "PayPal",
-        "Truist",
-        "Schwab",
-        "Ethereum",
-        "Bank of America",
-        "Robinhood",
-        "American Express",
-        "Citi",
-        "Northwestern Mutual Life",
-        "Zelle",
-        "New York Life Insurance",
+        # "Chase",
+        # "Venmo",
+        # "Chime",
+        # "PayPal",
+        # "Truist",
+        # "Schwab",
+        # "Ethereum",
+        # "Bank of America",
+        # "Robinhood",
+        # "American Express",
+        # "Citi",
+        # "Northwestern Mutual Life",
+        # "Zelle",
+        # "New York Life Insurance",
         
-        "eBay",
-        "Target",
+        # "eBay",
+        # "Target",
     ]
     
     ###########################################################################################
@@ -223,7 +224,7 @@ if __name__ == "__main__":
                 continue
             
             # Create brand folders, if needed
-            brand_dir = pathlib.Path(brand_info['brand_dir'], "sitesnap")
+            brand_dir = pathlib.Path(TEST_OUTPUT_ROOT, brand_name, "sitesnap")
             brand_date_dir = pathlib.Path(brand_dir, "archive", time_stamp)
             brand_dir.mkdir(parents=True, exist_ok=True)
             brand_date_dir.mkdir(parents=True, exist_ok=True)
