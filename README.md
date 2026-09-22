@@ -149,3 +149,21 @@ fingerprints, install stealth scripts, or route traffic through residential
 proxies. Persistent mode rejects `--headless` and bundled `chromium`; choose
 `--browser chrome` or `--browser msedge`. Close other processes using the same
 profile directory before starting a capture.
+
+#### If verification becomes “Access is temporarily restricted”
+
+That result is a site-side rejection, not a successful CAPTCHA completion. Use
+**Abort** (or **Skip** if you want failure artifacts); do not repeatedly retry
+the challenge. First open the same URL in ordinary Chrome or Edge on the same
+machine, outside SiteSnap. If that is also restricted, the device or network is
+being rejected and changing SiteSnap will not resolve it. A VM—especially one
+using a corporate, VPN, cloud, or datacenter egress IP—may be treated differently
+from a physical laptop on its normal network, so testing the ordinary browser
+and then SiteSnap on the laptop is a useful comparison.
+
+On Windows, persistent mode keeps Chrome's sandbox enabled and removes
+Playwright's unnecessary `--no-sandbox` default argument. The Chrome warning
+about an unsupported `--no-sandbox` flag should therefore not appear. This is a
+security correction, not an attempt to disguise automation, and a site may
+still decline the browser session. Do not work around that decision with rapid
+retries, fingerprint spoofing, CAPTCHA automation, or proxy rotation.
