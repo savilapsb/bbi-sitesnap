@@ -118,3 +118,34 @@ Successful captures are written to `runs/diagnostics/` with an adjacent
 `runs/diagnostics/failures/` with their screenshot, rendered HTML, and diagnostic
 report. Exit code `0` means the page passed validation, `2` means the page was
 captured but rejected, and `1` means the command itself could not run.
+
+### Persistent operator-assisted capture (Phase 3)
+
+For a site that presents human verification to a fresh automated browser, use
+the persistent strategy with an installed Google Chrome or Microsoft Edge. It
+runs headed and stores cookies and other browser state in a dedicated per-brand
+directory under `runs/browser-profiles/` (override with `--user-data-root`). Do
+not share one brand's profile with another brand.
+
+```bash
+python sitesnap_diagnose.py https://www.hoka.com/ \
+    --brand Hoka \
+    --strategy persistent \
+    --browser chrome \
+    --expected-host hoka.com \
+    --expected-text HOKA
+```
+
+If validation detects a challenge, the browser remains open and the terminal
+offers **Continue**, **Skip**, or **Abort**. Complete any verification yourself
+in the visible browser. Continue recollects the rendered page and reruns all
+validation; it never accepts the pre-checkpoint page. If a challenge remains,
+the prompt repeats. Skip records a `manual_required` failure without creating an
+accepted screenshot, and Abort stops with exit code `130`. A successful profile
+is reused on later runs for that brand.
+
+This workflow deliberately does **not** solve CAPTCHAs, spoof browser
+fingerprints, install stealth scripts, or route traffic through residential
+proxies. Persistent mode rejects `--headless` and bundled `chromium`; choose
+`--browser chrome` or `--browser msedge`. Close other processes using the same
+profile directory before starting a capture.

@@ -8,6 +8,7 @@ import sys
 from urllib.parse import urlparse
 
 from sitesnap_capture.browser import BrowserOptions, diagnose_url
+from sitesnap_capture.persistent import CaptureAborted, diagnose_url_persistent
 from sitesnap_capture.validation import ValidationPolicy
 
 
@@ -17,6 +18,18 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("url", help="Complete HTTP or HTTPS URL to diagnose.")
     parser.add_argument("--brand", required=True, help="Brand label for reports.")
+    parser.add_argument(
+        "--strategy",
+        choices=("standard", "persistent"),
+        default="standard",
+        help="Use standard diagnostics or a persistent operator-assisted profile.",
+    )
+    parser.add_argument(
+        "--user-data-root",
+        type=Path,
+        default=Path("runs", "browser-profiles"),
+        help="Root for dedicated per-brand profiles used by persistent strategy.",
+    )
     parser.add_argument(
         "--output-dir",
         type=Path,
@@ -71,15 +84,20 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     try:
-        result = asyncio.run(
-            diagnose_url(
-                url=args.url,
-                brand=args.brand,
-                output_dir=args.output_dir,
-                policy=policy,
-                options=options,
-            )
+        capture = diagnose_url_persistent if args.strategy == "persistent" else diagnose_url
+        kwargs = dict(
+            url=args.url,
+            brand=args.brand,
+            output_dir=args.output_dir,
+            policy=policy,
+            options=options,
         )
+        if args.strategy == "persistent":
+            kwargs["user_data_root"] = args.user_data_root
+        result = asyncio.run(capture(**kwargs))
+    except CaptureAborted as exc:
+        print(f"ABORTED: {exc}", file=sys.stderr)
+        return 130
     except Exception as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
