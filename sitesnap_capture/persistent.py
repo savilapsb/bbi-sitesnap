@@ -58,6 +58,30 @@ def brand_profile_dir(root: Path, brand: str) -> Path:
     return Path(root) / f"{readable}_{identity}"
 
 
+def _persistent_launch_options(options: BrowserOptions) -> dict:
+    """Build launch options, retaining Chrome's sandbox on Windows.
+
+    Playwright normally supplies ``--no-sandbox`` as a default Chromium flag.
+    It is unnecessary for a locally installed Windows browser, weakens browser
+    security, and causes a prominent unsupported-flag warning.  Linux launch
+    behavior is left unchanged because some CI/container environments require
+    that default flag.
+    """
+
+    launch_options = {
+        "channel": options.browser,
+        "headless": False,
+        "viewport": {
+            "width": options.viewport_width,
+            "height": options.viewport_height,
+        },
+        "ignore_https_errors": options.ignore_https_errors,
+    }
+    if sys.platform == "win32":
+        launch_options["ignore_default_args"] = ["--no-sandbox"]
+    return launch_options
+
+
 async def _validate_with_checkpoint(
     collect: Callable[[], Awaitable[PageSnapshot]],
     policy: ValidationPolicy,
@@ -126,10 +150,7 @@ async def diagnose_url_persistent(
     async with async_playwright() as playwright:
         context = await playwright.chromium.launch_persistent_context(
             str(profile_dir),
-            channel=options.browser,
-            headless=False,
-            viewport={"width": options.viewport_width, "height": options.viewport_height},
-            ignore_https_errors=options.ignore_https_errors,
+            **_persistent_launch_options(options),
         )
         page = context.pages[0] if context.pages else await context.new_page()
         page.on(

@@ -10,8 +10,10 @@ from sitesnap_capture.persistent import (
     CaptureAborted,
     CheckpointAction,
     _validate_with_checkpoint,
+    _persistent_launch_options,
     brand_profile_dir,
 )
+from sitesnap_capture.browser import BrowserOptions
 from sitesnap_capture.validation import ValidationPolicy
 
 
@@ -40,6 +42,23 @@ def accepted_snapshot() -> PageSnapshot:
 
 
 class CheckpointTests(unittest.TestCase):
+    def test_windows_launch_keeps_browser_sandbox_enabled(self):
+        with patch("sitesnap_capture.persistent.sys.platform", "win32"):
+            launch_options = _persistent_launch_options(
+                BrowserOptions(browser="chrome", headless=False)
+            )
+
+        self.assertEqual(["--no-sandbox"], launch_options["ignore_default_args"])
+        self.assertFalse(launch_options["headless"])
+
+    def test_non_windows_launch_keeps_playwright_defaults(self):
+        with patch("sitesnap_capture.persistent.sys.platform", "linux"):
+            launch_options = _persistent_launch_options(
+                BrowserOptions(browser="chrome", headless=False)
+            )
+
+        self.assertNotIn("ignore_default_args", launch_options)
+
     def test_continue_recollects_and_revalidates(self):
         collect = AsyncMock(side_effect=[challenge_snapshot(), accepted_snapshot()])
         checkpoint = AsyncMock(return_value=CheckpointAction.CONTINUE)
