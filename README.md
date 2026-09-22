@@ -60,3 +60,23 @@ sitesnap_get_snaps.py
 5. Do this for all URLs for the current brand. When completed, select and cut all of the screenshots from the **Downloads** folder and paste them into the brand's sitesnap directory (`/brand_data/[brand]/[year]/[month]/sitesnap/`).
 
 > **Tip (added 2026-09):** Chrome's DevTools can do the same thing. Open DevTools, press `Ctrl+Shift+P`, type `screenshot`, and choose **Capture full size screenshot**. Scroll to the bottom first so lazy-loaded content is present.
+
+## Capture engine v2 development
+
+Work on the replacement screenshot engine lives in `sitesnap_capture/`. Phase 1
+adds shared result models, deterministic page validation, and failure-artifact
+persistence. It intentionally does not change the production entry point yet;
+`sitesnap_get_snaps.py` continues to use the legacy capture implementation while
+the new engine is developed and tested.
+
+The validator distinguishes successful pages from access-denied responses,
+human-verification challenges, empty renders, navigation failures, and uncertain
+pages such as soft 404s. Rejected captures can be stored with their rendered HTML,
+screenshot, and a machine-readable `diagnostics.json` file so that failures can be
+investigated without rerunning the site.
+
+Run the Phase 1 tests from the repository root with:
+
+```bash
+python -m unittest discover -s tests -v
+```
