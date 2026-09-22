@@ -80,3 +80,41 @@ Run the Phase 1 tests from the repository root with:
 ```bash
 python -m unittest discover -s tests -v
 ```
+
+### Single-page browser diagnostics
+
+Phase 2 adds `sitesnap_diagnose.py`, an isolated command for opening one URL in
+an unmodified Chromium-family browser. It records the final URL, main-document
+status, title, visible-content size, document dimensions, image counts, browser
+console errors, failed requests, and challenge indicators before applying the
+Phase 1 validator. This command does not use a proxy, stealth package, user-agent
+override, or fingerprint script.
+
+Install Playwright and its bundled Chromium browser if they are not already
+available in the Python environment:
+
+```bash
+python -m pip install playwright
+python -m playwright install chromium
+```
+
+Run a visible diagnostic capture with:
+
+```bash
+python sitesnap_diagnose.py https://www.hoka.com/ \
+    --brand Hoka \
+    --browser chromium \
+    --expected-host hoka.com \
+    --expected-text HOKA
+```
+
+On Windows PowerShell, place the command on one line or use PowerShell's backtick
+line-continuation character instead of `\`. Use `--browser chrome` or
+`--browser msedge` to launch an installed browser channel, and add `--headless`
+only when a visible browser is not needed.
+
+Successful captures are written to `runs/diagnostics/` with an adjacent
+`*.diagnostics.json` report. Rejected captures are moved under
+`runs/diagnostics/failures/` with their screenshot, rendered HTML, and diagnostic
+report. Exit code `0` means the page passed validation, `2` means the page was
+captured but rejected, and `1` means the command itself could not run.

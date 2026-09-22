@@ -15,6 +15,59 @@ def safe_artifact_name(value: str, fallback: str = "capture") -> str:
     return cleaned[:120] or fallback
 
 
+def diagnostics_payload(
+    result: CaptureResult,
+    snapshot: PageSnapshot,
+    validation: ValidationResult,
+) -> dict:
+    """Build the common machine-readable report for a capture attempt."""
+
+    return {
+        "capture": result.to_dict(),
+        "snapshot": {
+            "requested_url": snapshot.requested_url,
+            "final_url": snapshot.final_url,
+            "status_code": snapshot.status_code,
+            "title": snapshot.title,
+            "body_text_length": len(snapshot.body_text),
+            "html_length": len(snapshot.html),
+            "document_width": snapshot.document_width,
+            "document_height": snapshot.document_height,
+            "image_count": snapshot.image_count,
+            "loaded_image_count": snapshot.loaded_image_count,
+            "challenge_selectors": list(snapshot.challenge_selectors),
+            "console_errors": list(snapshot.console_errors),
+            "failed_requests": list(snapshot.failed_requests),
+            "navigation_error": snapshot.navigation_error,
+        },
+        "validation": {
+            "outcome": validation.outcome.value,
+            "accepted": validation.accepted,
+            "reasons": list(validation.reasons),
+            "positive_signals": list(validation.positive_signals),
+            "negative_signals": list(validation.negative_signals),
+        },
+    }
+
+
+def write_diagnostics(
+    path: Path,
+    result: CaptureResult,
+    snapshot: PageSnapshot,
+    validation: ValidationResult,
+) -> Path:
+    """Write a capture report for either a successful or rejected page."""
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    result.diagnostics_path = path
+    payload = diagnostics_payload(result, snapshot, validation)
+    path.write_text(
+        json.dumps(payload, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    return path
+
+
 def write_failure_artifacts(
     root: Path,
     result: CaptureResult,
@@ -42,36 +95,10 @@ def write_failure_artifacts(
     if result.failure_reason is None and validation.reasons:
         result.failure_reason = " ".join(validation.reasons)
 
-    diagnostics_path = output_dir / "diagnostics.json"
-    result.diagnostics_path = diagnostics_path
-    diagnostics = {
-        "capture": result.to_dict(),
-        "snapshot": {
-            "requested_url": snapshot.requested_url,
-            "final_url": snapshot.final_url,
-            "status_code": snapshot.status_code,
-            "title": snapshot.title,
-            "body_text_length": len(snapshot.body_text),
-            "html_length": len(snapshot.html),
-            "document_width": snapshot.document_width,
-            "document_height": snapshot.document_height,
-            "image_count": snapshot.image_count,
-            "loaded_image_count": snapshot.loaded_image_count,
-            "challenge_selectors": list(snapshot.challenge_selectors),
-            "console_errors": list(snapshot.console_errors),
-            "failed_requests": list(snapshot.failed_requests),
-            "navigation_error": snapshot.navigation_error,
-        },
-        "validation": {
-            "outcome": validation.outcome.value,
-            "accepted": validation.accepted,
-            "reasons": list(validation.reasons),
-            "positive_signals": list(validation.positive_signals),
-            "negative_signals": list(validation.negative_signals),
-        },
-    }
-    diagnostics_path.write_text(
-        json.dumps(diagnostics, indent=2, ensure_ascii=False),
-        encoding="utf-8",
+    write_diagnostics(
+        output_dir / "diagnostics.json",
+        result,
+        snapshot,
+        validation,
     )
     return output_dir
